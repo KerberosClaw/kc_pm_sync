@@ -6,6 +6,16 @@ Claude Code skill — 把 local spec 檔案跟遠端專案管理平台（首發 
 
 Skeleton，尚未實作。
 
+### Next development entry points (TODO)
+
+MVP 目標 `/pm-sync sprint` 的三條切入，待有空時接續：
+
+- **a. Connectivity smoke test** — 寫一支最小 script 拿 PAT 打 Azure DevOps REST API 抓當前 sprint 的 work items raw JSON，確認 auth、endpoint、payload 長相
+- **b. `models/task.py` schema** — 定義 Unified Task model（id / title / state / assignee / sprint / labels / parent / links...）
+- **c. `adapters/base.py` abstract interface** — 定義跨平台 adapter 契約（`list_sprint_items`、`get_item`、`push_item`...）
+
+**建議順序 a → b → c**：先 spike API 拿真資料，再反推 schema 與 interface，避免憑想像過度設計。
+
 ## MVP 範圍
 
 **Pull 路徑（read-only）**
@@ -18,6 +28,7 @@ Skeleton，尚未實作。
 - [ ] `/pm-sync show <id>` — pull 個別 work item 細節
 - [ ] **Push: `/pm-sync push <spec-name>`** — 把新需求用 `spec` skill 整理後，透過 pm-sync 推到 Azure DevOps 建 work items
 - [ ] Wiki sync（Azure DevOps Wiki pull / push）
+      use case: pull → local markdown knowledge base；caller 端負責去敏 / filter
 - [ ] Confirmation gate + draft preview（所有寫遠端操作）
 - [ ] Revision check / ETag 避 race condition
 - [ ] 加其他 adapter：Redmine / Jira / GitHub Issues / 禪道
