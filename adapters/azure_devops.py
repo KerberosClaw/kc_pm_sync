@@ -23,6 +23,9 @@ from models.task import UnifiedTask
 from parsers.azure import parse_azure
 
 
+REQUIRED_ENV = ("AZDO_ORG_URL", "AZDO_PROJECT", "AZDO_PAT")
+
+
 _AZ_MISSING_MSG = (
     "Azure CLI ('az') not found on PATH. Install:\n"
     "  macOS:   brew install azure-cli\n"
@@ -46,6 +49,32 @@ class AzureDevOpsAdapter(PMAdapter):
         self.org_url = org_url
         self.project = project
         self.pat = pat
+
+    @classmethod
+    def from_env(cls) -> "AzureDevOpsAdapter":
+        """Build adapter from AZDO_* env vars; raise EnvironmentError if any missing.
+
+        Required env vars are listed in `REQUIRED_ENV`. The error message
+        includes a copy-paste-ready export block so the caller can act
+        without consulting docs.
+        """
+        missing = [v for v in REQUIRED_ENV if not os.environ.get(v)]
+        if missing:
+            raise EnvironmentError(
+                f"Missing required environment variable(s) for AzureDevOpsAdapter: {', '.join(missing)}\n"
+                "\n"
+                "Set them before running, for example:\n"
+                '  export AZDO_ORG_URL="https://dev.azure.com/your-org"\n'
+                '  export AZDO_PROJECT="YourProject"\n'
+                '  export AZDO_PAT="..."\n'
+                "\n"
+                "See README.md Prerequisites for the full setup."
+            )
+        return cls(
+            org_url=os.environ["AZDO_ORG_URL"],
+            project=os.environ["AZDO_PROJECT"],
+            pat=os.environ["AZDO_PAT"],
+        )
 
     def _az(self, *args: str) -> dict | list:
         """Invoke `az <args> --organization <org> -o json` and return parsed JSON.

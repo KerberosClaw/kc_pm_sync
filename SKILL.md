@@ -14,15 +14,15 @@ triggers: ["pm-sync", "sprint 進度", "推 ticket", "拉 sprint"]
 
 **MVP 可跑：`/pm-sync sprint` 命令完成。**
 
-- ✅ UnifiedTask schema + `from_azure_payload` factory（spec 01）
+- ✅ UnifiedTask schema + `parsers/azure.py` 平台對譯器（spec 01）
 - ✅ PMAdapter ABC（spec 02）
 - ✅ AzureDevOpsAdapter via `az` CLI（spec 03）
-- ✅ CLI entrypoint `scripts/sprint.py`（spec 04）
-- 🚧 `/pm-sync show <id>`、`/pm-sync push`、其他 adapter — future
+- ✅ CLI entrypoint `scripts/sprint.py` + `PM_SYNC_PLATFORM` adapter selector（spec 04）
+- 🚧 `/pm-sync show <id>`、`/pm-sync push`、其他 adapter（Redmine / Jira / ...） — future
 
 ## Usage
 
-先照 `README.md` Prerequisites 裝 `az` CLI 跟 export 三個 env vars。然後：
+預設 platform 是 `azure`。先照 `README.md` Prerequisites 裝 `az` CLI 跟 export 三個 env vars，然後：
 
 ```bash
 # 列出 sprint-12 的 work items，table 形式
@@ -34,6 +34,18 @@ python3 scripts/sprint.py sprint-12 --json | jq '.[] | {id, title, state}'
 # 也接受 native iteration path
 python3 scripts/sprint.py 'YourProject\Sprint 12'
 ```
+
+### 切換 platform（未來）
+
+CLI 透過 `PM_SYNC_PLATFORM` env var 選 adapter（default `azure`）。當其他 adapter 上線後：
+
+```bash
+export PM_SYNC_PLATFORM=redmine   # 切到 Redmine
+export PM_SYNC_PLATFORM=jira      # 切到 Jira
+unset PM_SYNC_PLATFORM             # 回 default (azure)
+```
+
+各 adapter 自己讀對應的 env vars（Azure: `AZDO_*`、Redmine: `REDMINE_*`、etc），CLI 不關心細節。
 
 預期 table output（去敏示意）：
 

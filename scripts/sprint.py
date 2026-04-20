@@ -1,21 +1,27 @@
 """/pm-sync sprint — CLI entrypoint for pulling sprint work items.
 
-Reads AZDO_ORG_URL / AZDO_PROJECT / AZDO_PAT from environment, instantiates
-AzureDevOpsAdapter, calls list_sprint_items(sprint_id), and prints either
-an aligned table or JSON.
+Selects a PM adapter via the `PM_SYNC_PLATFORM` env var (default: ``azure``),
+hands off to that adapter's `from_env()` classmethod for credentials, then
+calls `list_sprint_items(sprint_id)` and prints either an aligned table or
+JSON.
 
 Usage:
+    # Azure DevOps (default platform)
     export AZDO_ORG_URL="https://dev.azure.com/your-org"
     export AZDO_PROJECT="YourProject"
     export AZDO_PAT="..."
 
     python3 scripts/sprint.py sprint-12
     python3 scripts/sprint.py sprint-12 --json
+
+    # Switch platform later (when other adapters land):
+    # export PM_SYNC_PLATFORM=redmine
 """
 
 from __future__ import annotations
 
 import argparse
+import importlib
 import json
 import os
 import sys
@@ -23,41 +29,52 @@ from dataclasses import asdict
 from pathlib import Path
 
 # Allow running as `python3 scripts/sprint.py` from repo root or anywhere:
-# prepend repo root so `adapters` / `models` packages are importable.
+# prepend repo root so `adapters` / `models` / `parsers` packages are importable.
 _REPO_ROOT = Path(__file__).resolve().parent.parent
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
-from adapters.azure_devops import AzureDevOpsAdapter  # noqa: E402
+from adapters.base import PMAdapter  # noqa: E402
 from models.task import UnifiedTask  # noqa: E402
 
 
-REQUIRED_ENV = ("AZDO_ORG_URL", "AZDO_PROJECT", "AZDO_PAT")
+# Adapter registry — add a row when shipping a new adapter; CLI auto-dispatches.
+ADAPTERS = {
+    "azure": ("adapters.azure_devops", "AzureDevOpsAdapter"),
+    # Future:
+    # "redmine": ("adapters.redmine", "RedmineAdapter"),
+    # "jira":    ("adapters.jira",    "JiraAdapter"),
+}
+
+DEFAULT_PLATFORM = "azure"
 
 TITLE_MAX = 60
 ASSIGNEE_MAX = 30
 
 
-def _load_env_or_exit() -> tuple[str, str, str]:
-    """Return (org_url, project, pat) from env. Exit(1) with help if any missing."""
-    missing = [v for v in REQUIRED_ENV if not os.environ.get(v)]
-    if missing:
+def _load_adapter() -> PMAdapter:
+    """Resolve the adapter for the current PM_SYNC_PLATFORM (default 'azure').
+
+    Each adapter's `from_env()` classmethod reads its own platform-specific
+    env vars and raises `EnvironmentError` (with a helpful message) if any
+    are missing. CLI catches that and exits 1.
+    """
+    platform = os.environ.get("PM_SYNC_PLATFORM", DEFAULT_PLATFORM)
+    if platform not in ADAPTERS:
         sys.stderr.write(
-            f"Missing required environment variable(s): {', '.join(missing)}\n"
-            "\n"
-            "Set them before running, for example:\n"
-            '  export AZDO_ORG_URL="https://dev.azure.com/your-org"\n'
-            '  export AZDO_PROJECT="YourProject"\n'
-            '  export AZDO_PAT="..."\n'
-            "\n"
-            "See README.md Prerequisites for the full setup.\n"
+            f"Unknown PM_SYNC_PLATFORM={platform!r}. "
+            f"Available: {sorted(ADAPTERS)}\n"
+            f"Default is '{DEFAULT_PLATFORM}'; unset PM_SYNC_PLATFORM to use it.\n"
         )
         sys.exit(1)
-    return (
-        os.environ["AZDO_ORG_URL"],
-        os.environ["AZDO_PROJECT"],
-        os.environ["AZDO_PAT"],
-    )
+
+    module_path, class_name = ADAPTERS[platform]
+    AdapterCls = getattr(importlib.import_module(module_path), class_name)
+    try:
+        return AdapterCls.from_env()
+    except EnvironmentError as e:
+        sys.stderr.write(f"{e}\n")
+        sys.exit(1)
 
 
 def _truncate(s: str, n: int) -> str:
@@ -95,7 +112,7 @@ def _format_table(tasks: list[UnifiedTask]) -> str:
 def _format_json(tasks: list[UnifiedTask]) -> str:
     def to_dict(t: UnifiedTask) -> dict:
         d = asdict(t)
-        d.pop("native", None)  # raw Azure payload excluded (too noisy for CLI)
+        d.pop("native", None)  # raw payload excluded (too noisy for CLI)
         d["changed_at"] = t.changed_at.isoformat()
         return d
 
@@ -105,12 +122,15 @@ def _format_json(tasks: list[UnifiedTask]) -> str:
 def main() -> int:
     parser = argparse.ArgumentParser(
         prog="pm-sync sprint",
-        description="List work items in a sprint from Azure DevOps.",
+        description=(
+            "List work items in a sprint. Platform selected via "
+            "PM_SYNC_PLATFORM env var (default: azure)."
+        ),
     )
     parser.add_argument(
         "sprint_id",
-        help="Sprint identifier. Short form 'sprint-12' or native "
-             "'YourProject\\Sprint 12' both accepted.",
+        help="Sprint identifier. Short form 'sprint-12' or platform-native "
+             "form (e.g. Azure 'YourProject\\Sprint 12') both accepted.",
     )
     parser.add_argument(
         "--json", action="store_true",
@@ -118,8 +138,7 @@ def main() -> int:
     )
     args = parser.parse_args()
 
-    org_url, project, pat = _load_env_or_exit()
-    adapter = AzureDevOpsAdapter(org_url=org_url, project=project, pat=pat)
+    adapter = _load_adapter()
     tasks = adapter.list_sprint_items(args.sprint_id)
 
     output = _format_json(tasks) if args.json else _format_table(tasks)
