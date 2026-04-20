@@ -1,6 +1,6 @@
 # 結案報告：CLI Sprint Entrypoint
 
-> **English summary:** `/pm-sync sprint` MVP shipped. Live smoke test against real Azure DevOps returned 68 work items from Sprint 12, including the user's #670, with a clean state-distribution breakdown. Two real-data bugs caught and fixed during smoke (missing --project flag on `work-item show`, 2-digit fractional seconds breaking Python 3.9 `fromisoformat`).
+> **English summary:** `/pm-sync sprint` MVP shipped. Live smoke test against a real Azure DevOps sprint returned the full work-item roster (including the user's own ticket) with a sane state distribution. Two real-data bugs were caught and fixed during smoke (`--project` flag rejected by `work-item show`; 2-digit fractional seconds breaking Python 3.9 `fromisoformat`).
 
 **Spec:** specs/completed/04-cli-sprint-entrypoint
 **Status:** completed
@@ -76,7 +76,7 @@ kc_pm_sync MVP 達成。spec 01-04 全部收口，`python3 scripts/sprint.py spr
   2. Python 3.9/3.10 `fromisoformat` 對 fractional seconds 位數很嚴格（只接受 3 或 6 位），Azure 實際資料有 2 位（`.62`）、也可能 1 位。已補 `_normalize_iso`。
 - **單 sprint test coverage**：只跑過 `sprint-12`。其他 sprint / 多階層 iteration path / 非 Scrum template project 未驗證。
 - **Unicode / CJK 在 table 對齊**：MVP 用 `len()`；若 title 含 CJK，視覺會偏移。future spec 補 `east_asian_width` 正確計算。
-- **`.env.local` convention 不一致**：(a separate private repo) 的 `.env.local` 只有部分變數有 `export` prefix，`source` 後非 exported var 不會傳給 subprocess。未來整理 juhan env 時對齊。
+- **`.env.local` convention 不一致**：the local `.env` file 只有部分變數有 `export` prefix，`source` 後非 exported var 不會傳給 subprocess。未來整理 local env 時對齊。
 - **Rate limit / 大 sprint**：the full sprint roster 跑完約 5-6 秒（N+1 query）。若 > 500 items 會痛，補批次 fetch 或 cache。
 - **PAT 期限**：PAT 過期時 `az` 會 stderr 噴錯、subprocess raise `CalledProcessError`；CLI 沒特別處理（just 讓 exception 冒出）。體驗可以更好，future spec。
 
@@ -101,4 +101,4 @@ Plan 預估 Task 1-5 共 ~92 分 + Task 6（smoke）~5 分。實際跑：
 - **下一步建議**：
   - `05-show-and-push-commands` — 補 `/pm-sync show <id>` 跟 `/pm-sync push <spec-name>`（MVP push 寫 Azure work item）
   - `06-error-handling-polish` — PAT 過期 / 網路失敗 / rate limit 友善訊息
-  - Wiki adapter（(a separate private repo) 的 wiki_dump.py 已經實作過一版，可抽出）
+  - Wiki adapter（the separate wiki-dump script 已經實作過一版，可抽出）

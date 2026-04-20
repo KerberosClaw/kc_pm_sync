@@ -66,7 +66,7 @@
 - [x] **Task 6: End-to-end smoke test**（2026-04-20 完成，the full sprint roster, 670 present）
   - `source ~/.pm-sync.env`（已含 AZDO_*）
   - `cd ~/dev/kc_pm_sync && python3 scripts/sprint.py sprint-12`
-  - 預期：table 出現，含 the user #670，可能多筆 Sprint 12 items
+  - 預期：table 出現，含 the user's #670，可能多筆 Sprint 12 items
   - `python3 scripts/sprint.py sprint-12 --json | python3 -c "import sys, json; print(len(json.load(sys.stdin)))"` 印總筆數
   - **完成條件：** 命令執行成功、output 有 #670、筆數 ≥ 1
   - **⚠️ output 不 commit**（含 acme 資料）；在 report.md 只記去敏摘要（"N items returned, first id=670 state=In Progress"）

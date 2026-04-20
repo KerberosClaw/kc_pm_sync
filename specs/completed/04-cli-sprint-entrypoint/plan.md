@@ -36,7 +36,7 @@ Smoke test 單獨在 spec 結束後手動跑一次，不進 pytest。
 | datetime 序列化 | `dataclasses.asdict` + 後處理把 `changed_at` 轉 ISO string | json 不吃 datetime；asdict 保留欄位名 |
 | Exit code | 0 ok、1 env/config 錯、其他讓 exception 冒出（non-zero）| CI / script 友善 |
 | 測試 mock target | `scripts.sprint.AzureDevOpsAdapter` | import 在 `scripts/sprint.py`，mock 這個 binding 不影響 adapter 模組 |
-| Smoke test fixture | 用 the user's own sprint-12 + env.local | (a separate private repo) 已驗證過 PAT 可用 |
+| Smoke test fixture | 用 the user's sprint-12 + env.local | PAT validity verified separately in a sibling repo |
 
 ## 風險
 

@@ -21,7 +21,7 @@
 | Parent 表示 | 只存 `parent_id: int \| None` | MVP 用不到樹狀走訪，YAGNI；未來需要再加方法 |
 | 時間欄位 | `datetime`（帶 tzinfo） | Azure 回傳 ISO 8601 UTC，解析後保留 tz 比 naive datetime 安全 |
 | raw 存放 | `native: dict` 欄位 | escape hatch，未來查 mapping 漏掉的欄位不用改 schema |
-| 不做 Effort | 不加欄位 | Azure 真實資料填寫率 0（百筆級 active sample, 0 筆有 Effort > 0）— YAGNI |
+| 不做 Effort | 不加欄位 | Azure 真實資料抽樣顯示 Effort 欄位填寫率為 0（百筆級 active sample）— YAGNI |
 | 平台標記 | `platform: str = "azure"` | 預設值，未來 Trello adapter 會覆寫 |
 | 測試框架 | pytest | python 社群主流，比 unittest 語法簡潔 |
 | Fixture 路徑 | `tests/fixtures/azure/` | 按平台分層，未來加 `tests/fixtures/trello/` 自然擴展 |

@@ -13,19 +13,21 @@
 
 ## 去敏 checklist（每次新增 fixture 前跑一遍）
 
-grep 確認下列字串**零出現**：
+grep 確認下列**真實字串零出現**（替換為對應 placeholder）：
 
 | 類別 | 取代規則 |
 |------|---------|
-| 組織名（小寫） | `acme` → `acme`（或其他 generic placeholder） |
-| 組織名（camel / title case） | `Acme` → `Acme`、`AcmeDev` → `AcmeDev` |
+| 組織名（小寫） | 真實 org slug → `acme`（或自選 generic placeholder） |
+| 組織名（camel / title case） | 真實 `XxxDev` → `AcmeDev` |
 | 個人 email 前綴 | 真實 user ID → `demo_user` / `user` |
-| 個人顯示名 | `Demo User` / `Demo User` → `Demo User` |
+| 個人顯示名 | 真實姓名（中英版本都要）→ `Demo User` |
 | Project UUID | → `00000000-0000-0000-0000-000000000001`（可疊號區分不同 project） |
 | User identity GUID | → `11111111-1111-1111-1111-111111111111` |
 | AAD descriptor | `aad.<base64>` → `aad.REDACTED` |
 | 內網 IP / hostname | 移除或改 `10.0.0.1` / `internal.example.com` |
 | 客戶 / 專案代號 | 改為字母代號（A、B、C...） |
+
+> **公開 repo 注意：** 這份 README 本身**不要列出真實 org / user 字串**（即使作為「before 範例」）。把實際字串放在你本機的 `.env` / 私人筆記，公開檔只描述 pattern。
 
 ## 範例：Azure DevOps Work Item
 
@@ -43,7 +45,7 @@ tests/fixtures/azure/
 
 1. 本地用真實 PAT 抓 raw：`az boards work-item show --id <id> -o json > /tmp/raw.json`
 2. 對照上表去敏（可寫成 script：`scripts/sanitize_fixture.py`，目前手動）
-3. 檢視：`grep -iE 'acme|demo_user|chaing steve' fixture.json` 應零結果
+3. 檢視：`grep -iE '<your-real-org>|<your-real-username>' fixture.json` 應零結果（pattern 自填本機真實字串）
 4. 進 `tests/fixtures/<platform>/`
 5. Commit；pm-sync 的 hook 會擋明顯 secret，但 email / org 名靠這份規範自律
 

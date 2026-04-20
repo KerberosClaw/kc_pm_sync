@@ -27,7 +27,7 @@
 
 Spec 01 + 02 鋪好 schema + 介面。本 spec 是第一個**真的會去拉資料**的 adapter — `az` CLI subprocess route，pragmatic 取向：
 
-- smoke test（2026-04-20 via (a separate private repo)）已驗證 `az boards work-item show` + `az boards query` 回傳格式跟 REST API 一致
+- smoke test（2026-04-20）已驗證 `az boards work-item show` + `az boards query` 回傳格式跟 REST API 一致
 - `UnifiedTask.from_azure_payload()` 直接可吃
 - auth / retry / error mapping 交給 `az` 本身處理，不重造輪子
 

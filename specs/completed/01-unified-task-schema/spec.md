@@ -10,7 +10,7 @@
   - `models/__init__.py`（新增 / 更新 export）
   - `tests/test_task.py`（新增）
   - `tests/__init__.py`（新增，空檔）
-  - `tests/fixtures/azure/work_item_670.json`（新增，the user 真實資料）
+  - `tests/fixtures/azure/work_item_670.json`（新增，去敏後的真實 Azure 資料）
 - **輸入（Inputs）：**
   - Azure DevOps work item API 回傳格式（`az boards work-item show --id N` / REST API `/_apis/wit/workitems/N`）
   - 具體欄位已由 2026-04-20 的 `an internal Azure DevOps snapshot note` 驗證過
@@ -50,7 +50,7 @@
 - **不打 live Azure DevOps API**（dev 全走 fixture）
 - **不支援其他平台**（Trello / Jira / GitHub Issues — future spec）
 - **不實作 parent→children 樹狀 walk**（`parent_id` 只存 int，不自動 fetch parent）
-- **不加 Effort / Story Points 欄位**（our workplace Azure 真實資料 百筆級 active sample item，Effort 填寫率 0 → YAGNI）
+- **不加 Effort / Story Points 欄位**（our workplace Azure 真實資料 sampled active backlog，Effort 填寫率 0 → YAGNI）
 - **不做 serialize 回 Azure payload 的 `to_azure_payload()`**（push 是後續 task）
 - **不做 CI 設定**（pytest 能在本機跑就達標）
 - **不處理畸形 / 不完整 payload**：缺 required key（如 Title / State / WorkItemType）時讓 `KeyError` 自然冒出，不包裝自訂 exception。只有 AC-2 明列的 optional key（Parent / AssignedTo）用 `.get()` 容錯。
@@ -60,4 +60,4 @@
 - **Python 3.10+**（dataclass + `str | None` union syntax + `from __future__ import annotations` 可選）
 - **pytest**（dev only，安裝到 venv 或 `pip install --user pytest`；實作時可考慮 `requirements-dev.txt`）
 - **stdlib only**（`dataclasses`、`datetime`、`json`、`pathlib`）— 不引入第三方 parser
-- **fixture 資料來源**：the user 需先用 `source ~/.pm-sync.env && az boards work-item show --id 670 -o json > ~/dev/kc_pm_sync/tests/fixtures/azure/work_item_670.json` 產出（或在 task #1 內執行）
+- **fixture 資料來源**：user needs to run `source ~/.pm-sync.env && az boards work-item show --id 670 -o json > ~/dev/kc_pm_sync/tests/fixtures/azure/work_item_670.json` 產出（或在 task #1 內執行）

@@ -10,8 +10,8 @@
 - [x] **Task 1: 產出 fixture #670**（2026-04-20 完成）
   - 預備：`source ~/.pm-sync.env`（含 AZDO_* 環境變數）
   - 執行：`mkdir -p tests/fixtures/azure && az boards work-item show --id 670 -o json > tests/fixtures/azure/work_item_670.json`
-  - **去敏**（repo public，按 feedback_commit_desensitization 規則）：替換 `acme → acme`、`Acme → Acme`、`demo_user → demo_user`、`Demo User / Demo User → Demo User`、project UUID → `00000000-0000-0000-0000-000000000001`、user GUID → `11111111-1111-1111-1111-111111111111`、descriptor → `aad.REDACTED`
-  - 驗證：檢視 JSON 結構，所有 needed fields 齊（grep `acme|demo_user` 零 hit）
+  - **去敏**（repo public）：按 `tests/fixtures/README.md` 的去敏規範把組織名 / 個人 email / project UUID / user GUID / aad descriptor 全部替換為 placeholder
+  - 驗證：grep 真實 org / user 字串應零結果（規範與字串清單見 `tests/fixtures/README.md`）
   - 交付：`tests/fixtures/azure/work_item_670.json`（sanitized）
   - 預期 assertion 值（Task 4 要對）：id=670, type="Task", state="In Progress", title="Run through tech docs", iterationPath="AcmeDev\\Sprint 12", areaPath="AcmeDev", parent=597, assignee="demo_user@acme.onmicrosoft.com", changedDate="2026-04-20T02:11:40.087Z"
 
