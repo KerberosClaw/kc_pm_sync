@@ -115,12 +115,17 @@ class AzureDevOpsAdapter(PMAdapter):
 
     def list_sprint_items(self, sprint_id: str) -> list[UnifiedTask]:
         native = self._sprint_id_to_native(sprint_id)
+        # SELECT every field parse_azure needs so the WIQL response is
+        # parser-ready in one shot — avoids the N+1 of fetching each item
+        # individually via `work-item show`.
         wiql = (
-            "SELECT [System.Id] FROM WorkItems "
-            f"WHERE [System.IterationPath] = '{native}'"
+            "SELECT [System.Id], [System.WorkItemType], [System.Title], "
+            "[System.State], [System.AssignedTo], [System.IterationPath], "
+            "[System.Parent], [System.AreaPath], [System.ChangedDate] "
+            f"FROM WorkItems WHERE [System.IterationPath] = '{native}'"
         )
         # `query` accepts --project (and needs it); `work-item show` does not.
         rows = self._az("boards", "query", "--wiql", wiql, "--project", self.project)
         if not isinstance(rows, list):
             raise TypeError(f"az boards query returned {type(rows).__name__}, expected list")
-        return [self.get_item(row["id"]) for row in rows]
+        return [parse_azure(row) for row in rows]

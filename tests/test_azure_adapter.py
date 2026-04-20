@@ -52,16 +52,16 @@ def test_get_item_maps_azure_payload():
     assert "pat" not in " ".join(m_run.call_args.args[0])  # not on argv
 
 
-def test_list_sprint_items_calls_wiql_then_fetches_each():
+def test_list_sprint_items_uses_single_wiql_with_full_fields():
+    """One WIQL query returns parser-ready rows; no per-item show round-trip."""
     raw_670 = _load_fixture("work_item_670")
-    wiql_result = [{"id": 670}]
+    # az boards query response shape == list of work items with `id` + `fields` dict,
+    # same as `work-item show` (just whichever fields the SELECT lists).
+    wiql_result = [raw_670]
 
     with patch("adapters.azure_devops.shutil.which", return_value="/usr/bin/az"), \
          patch("adapters.azure_devops.subprocess.run") as m_run:
-        m_run.side_effect = [
-            MagicMock(stdout=json.dumps(wiql_result), returncode=0),  # WIQL query
-            MagicMock(stdout=json.dumps(raw_670), returncode=0),       # show #670
-        ]
+        m_run.return_value = MagicMock(stdout=json.dumps(wiql_result), returncode=0)
         adapter = AzureDevOpsAdapter(
             org_url="https://dev.azure.com/acme",
             project="AcmeDev",
@@ -72,8 +72,12 @@ def test_list_sprint_items_calls_wiql_then_fetches_each():
     assert len(tasks) == 1
     assert isinstance(tasks[0], UnifiedTask)
     assert tasks[0].id == 670
-    assert m_run.call_count == 2
-    # First call should be the WIQL query
-    first_argv = m_run.call_args_list[0].args[0]
-    assert "query" in first_argv
-    assert "--wiql" in first_argv
+    # Critical: ONE subprocess call, not N+1
+    assert m_run.call_count == 1
+    argv = m_run.call_args.args[0]
+    assert "query" in argv and "--wiql" in argv
+    # WIQL must SELECT all fields parse_azure needs (otherwise rows are partial)
+    wiql = argv[argv.index("--wiql") + 1]
+    for required in ("System.Title", "System.State", "System.WorkItemType",
+                     "System.IterationPath", "System.AreaPath", "System.ChangedDate"):
+        assert required in wiql, f"WIQL missing required field: {required}"
