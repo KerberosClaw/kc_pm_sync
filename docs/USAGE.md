@@ -191,16 +191,67 @@ unset PM_SYNC_PLATFORM             # 回 default azure
 
 ## 6. Roadmap
 
-當前 MVP 只有 `sprint` 一個指令。已規劃但未實作：
+當前 MVP 只有 `sprint` 一個指令。以下依優先順序分 phase 列出，歡迎 PR 填坑。
+
+**終極 vision：** 跟 [`kc_ai_skills/spec`](https://github.com/KerberosClaw/kc_ai_skills/tree/main/spec) + [`kc_claude_harness`](https://github.com/KerberosClaw/kc_claude_harness) 串成「數位 PM pipeline」—— 長官一句話需求 → `/spec` 釐清 → `/pm-sync push` 切 work items → 每日 `/pm-sync daily` 推 Telegram standup。
+
+### Phase A — Read paths 完整化
 
 - [ ] `show <id>` — 單筆 work item 細節（adapter 已有 `get_item`，差 CLI 套殼）
+- [ ] `daily` — 拉當日 sprint + diff 昨天 snapshot + standup-friendly format
 - [ ] `--state X` / `--assignee Y` filter flags
-- [ ] `--mine` shortcut（讀 `git config user.email`）
-- [ ] `@current` macro（自動解析「現在的 sprint」）
-- [ ] `push <spec-name>` — 把 local spec tasks.md 推 platform 建 work items（需要 draft preview + confirmation gate）
-- [ ] Wiki sync（pull/push Azure DevOps wiki）
-- [ ] 其他 adapter — Redmine、Jira、GitHub Issues、禪道
+- [ ] `--mine` shortcut（讀 `git config user.email` 或 `AZDO_USER` env）
+- [ ] `@current` macro（自動解析「當前 sprint」）
+- [ ] `sprints` — 列所有 iteration paths
 - [ ] Backlog 模式（不指定 sprint，列整個 backlog）
 - [ ] Sprint 比較（兩個 sprint diff）
+- [ ] State snapshot cache（本地 SQLite / json，daily diff 需要）
+
+### Phase B — Write paths（首個寫遠端的 feature 組）
+
+- [ ] `push <spec-name>` — 把 `specs/<name>/tasks.md` 推 Azure 建 work items
+  - 六要素 → work item fields 的權威 mapping 表
+  - Hierarchy：spec.md = Feature，tasks.md 每項 = 掛在下面的 Task
+  - Draft preview + `--confirm` gate（README 設計哲學的 Read-before-write）
+  - Idempotent：重跑不重建已有的 task（用 spec id 做 mark）
+- [ ] `assign <id> <engineer>` — 改 work item AssignedTo
+- [ ] `state <id> <new-state>` — 改狀態（New / Active / In Progress / Done）
+- [ ] Pull 反向：work item state 改了 → 反向更新本地 `tasks.md` 的 checkbox
+
+### Phase C — Sprint planning（半智慧）
+
+- [ ] `sprint-plan <spec-name>` — 自動切 sprint
+  - Effort 估算策略（先 user 標 → 後加 LLM 自動估 + feedback loop 學準）
+  - 依賴排序（task A 先，task B 後）
+  - Capacity-aware 派人（滿載的人不給新任務）
+
+### Phase D — Team / roster / capacity
+
+- [ ] `~/.pm-sync.team.yml` schema（engineer 清單 / skill / capacity）
+- [ ] `team` command — 顯示當前每人 load
+- [ ] 自動從 Azure DevOps team settings 抓成員（選用，vs 手動維護）
+
+### Wiki sync（獨立 feature）
+
+- [ ] Azure DevOps Wiki pull（遠端 → 本地 markdown）
+- [ ] Azure DevOps Wiki push（本地 markdown → 遠端）
+
+### 其他 adapters
+
+加新 adapter 步驟見 [`ARCHITECTURE.md`](ARCHITECTURE.md)。目前是「寫兩個檔 + 改一行 registry」。
+
+- [ ] Redmine
+- [ ] Jira
+- [ ] GitHub Issues
+- [ ] 禪道
+
+### 跨 spec 設計議題（非 feature，是必須先敲定的事）
+
+- [ ] 六要素 → Azure work item 欄位 mapping 權威表（`docs/SPEC_INTEGRATION.md` 是合適位置）
+- [ ] Idempotency strategy：spec 改完 push 第二次時怎麼識別「這 task 已存在」（spec-id 進 description / tag / 關聯欄位？）
+- [ ] Spec ↔ work item 雙向同步的 conflict resolution（同時改兩邊怎麼辦）
+- [ ] `/pm-sync daily` 的 Telegram 推播格式跟 skill-cron 整合
+
+---
 
 詳細設計哲學跟加新 adapter 的步驟見 [`ARCHITECTURE.md`](ARCHITECTURE.md)。
