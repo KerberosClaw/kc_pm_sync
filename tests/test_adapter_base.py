@@ -23,6 +23,7 @@ def _make_stub_task(id: int = 1) -> UnifiedTask:
         parent_id=None,
         area_path="X",
         changed_at=datetime.now(timezone.utc),
+        platform="test",
     )
 
 

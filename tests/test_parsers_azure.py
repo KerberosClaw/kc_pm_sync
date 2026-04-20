@@ -1,4 +1,6 @@
-"""Unit tests for models.task.UnifiedTask."""
+"""Unit tests for parsers.azure (parse_azure + _normalize_iso)."""
+
+from __future__ import annotations
 
 import json
 from datetime import datetime
@@ -6,7 +8,7 @@ from pathlib import Path
 
 import pytest
 
-from models.task import UnifiedTask, _normalize_iso
+from parsers.azure import _normalize_iso, parse_azure
 
 
 FIXTURE_DIR = Path(__file__).parent / "fixtures" / "azure"
@@ -28,9 +30,9 @@ def test_normalize_iso_handles_fractional_and_Z(raw, expected):
     assert _normalize_iso(raw) == expected
 
 
-def test_from_azure_payload_work_item_670():
+def test_parse_azure_work_item_670():
     raw = json.loads((FIXTURE_DIR / "work_item_670.json").read_text())
-    task = UnifiedTask.from_azure_payload(raw)
+    task = parse_azure(raw)
 
     # 識別
     assert task.id == 670

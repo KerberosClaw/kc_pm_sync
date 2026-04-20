@@ -20,6 +20,7 @@ import subprocess
 
 from adapters.base import PMAdapter
 from models.task import UnifiedTask
+from parsers.azure import parse_azure
 
 
 _AZ_MISSING_MSG = (
@@ -81,7 +82,7 @@ class AzureDevOpsAdapter(PMAdapter):
         # _az returns dict for show; callers that receive a list should crash loud.
         if not isinstance(raw, dict):
             raise TypeError(f"az work-item show returned {type(raw).__name__}, expected dict")
-        return UnifiedTask.from_azure_payload(raw)
+        return parse_azure(raw)
 
     def list_sprint_items(self, sprint_id: str) -> list[UnifiedTask]:
         native = self._sprint_id_to_native(sprint_id)

@@ -23,6 +23,7 @@ def _make_stub_task(id: int, title: str = "stub", assignee: str | None = None) -
         parent_id=None,
         area_path="AcmeDev",
         changed_at=datetime(2026, 4, 20, 2, 11, 40, tzinfo=timezone.utc),
+        platform="test",
     )
 
 
