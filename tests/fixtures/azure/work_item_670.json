@@ -1,0 +1,109 @@
+{
+  "fields": {
+    "Microsoft.VSTS.Common.ActivatedBy": {
+      "_links": {
+        "avatar": {
+          "href": "https://dev.azure.com/acme/_apis/GraphProfile/MemberAvatars/aad.REDACTED"
+        }
+      },
+      "descriptor": "aad.REDACTED",
+      "displayName": "Dale",
+      "id": "11111111-1111-1111-1111-111111111111",
+      "imageUrl": "https://dev.azure.com/acme/_apis/GraphProfile/MemberAvatars/aad.REDACTED",
+      "uniqueName": "dale_lin@acme.onmicrosoft.com",
+      "url": "https://spsprodsea2.vssps.visualstudio.com/A25a56e7f-924f-4d5b-ba69-7b489b39275a/_apis/Identities/11111111-1111-1111-1111-111111111111"
+    },
+    "Microsoft.VSTS.Common.ActivatedDate": "2026-04-20T02:11:40.087Z",
+    "Microsoft.VSTS.Common.Priority": 2,
+    "Microsoft.VSTS.Common.StateChangeDate": "2026-04-20T02:11:40.087Z",
+    "System.AreaId": 4,
+    "System.AreaLevel1": "AcmeDev",
+    "System.AreaPath": "AcmeDev",
+    "System.AssignedTo": {
+      "_links": {
+        "avatar": {
+          "href": "https://dev.azure.com/acme/_apis/GraphProfile/MemberAvatars/aad.REDACTED"
+        }
+      },
+      "descriptor": "aad.REDACTED",
+      "displayName": "Demo User",
+      "id": "56a838f9-38c1-4ab0-890b-072c018f78a0",
+      "imageUrl": "https://dev.azure.com/acme/_apis/GraphProfile/MemberAvatars/aad.REDACTED",
+      "uniqueName": "demo_user@acme.onmicrosoft.com",
+      "url": "https://spsprodsea2.vssps.visualstudio.com/A25a56e7f-924f-4d5b-ba69-7b489b39275a/_apis/Identities/56a838f9-38c1-4ab0-890b-072c018f78a0"
+    },
+    "System.AuthorizedAs": {
+      "_links": {
+        "avatar": {
+          "href": "https://dev.azure.com/acme/_apis/GraphProfile/MemberAvatars/aad.REDACTED"
+        }
+      },
+      "descriptor": "aad.REDACTED",
+      "displayName": "Dale",
+      "id": "11111111-1111-1111-1111-111111111111",
+      "imageUrl": "https://dev.azure.com/acme/_apis/GraphProfile/MemberAvatars/aad.REDACTED",
+      "uniqueName": "dale_lin@acme.onmicrosoft.com",
+      "url": "https://spsprodsea2.vssps.visualstudio.com/A25a56e7f-924f-4d5b-ba69-7b489b39275a/_apis/Identities/11111111-1111-1111-1111-111111111111"
+    },
+    "System.AuthorizedDate": "2026-04-20T02:11:40.087Z",
+    "System.ChangedBy": {
+      "_links": {
+        "avatar": {
+          "href": "https://dev.azure.com/acme/_apis/GraphProfile/MemberAvatars/aad.REDACTED"
+        }
+      },
+      "descriptor": "aad.REDACTED",
+      "displayName": "Dale",
+      "id": "11111111-1111-1111-1111-111111111111",
+      "imageUrl": "https://dev.azure.com/acme/_apis/GraphProfile/MemberAvatars/aad.REDACTED",
+      "uniqueName": "dale_lin@acme.onmicrosoft.com",
+      "url": "https://spsprodsea2.vssps.visualstudio.com/A25a56e7f-924f-4d5b-ba69-7b489b39275a/_apis/Identities/11111111-1111-1111-1111-111111111111"
+    },
+    "System.ChangedDate": "2026-04-20T02:11:40.087Z",
+    "System.CommentCount": 0,
+    "System.CreatedBy": {
+      "_links": {
+        "avatar": {
+          "href": "https://dev.azure.com/acme/_apis/GraphProfile/MemberAvatars/aad.REDACTED"
+        }
+      },
+      "descriptor": "aad.REDACTED",
+      "displayName": "Dale",
+      "id": "11111111-1111-1111-1111-111111111111",
+      "imageUrl": "https://dev.azure.com/acme/_apis/GraphProfile/MemberAvatars/aad.REDACTED",
+      "uniqueName": "dale_lin@acme.onmicrosoft.com",
+      "url": "https://spsprodsea2.vssps.visualstudio.com/A25a56e7f-924f-4d5b-ba69-7b489b39275a/_apis/Identities/11111111-1111-1111-1111-111111111111"
+    },
+    "System.CreatedDate": "2026-04-19T15:01:04.047Z",
+    "System.Id": 670,
+    "System.IterationId": 19,
+    "System.IterationLevel1": "AcmeDev",
+    "System.IterationLevel2": "Sprint 12",
+    "System.IterationPath": "AcmeDev\\Sprint 12",
+    "System.NodeName": "AcmeDev",
+    "System.Parent": 597,
+    "System.PersonId": 313652146,
+    "System.Reason": "Work started",
+    "System.Rev": 3,
+    "System.RevisedDate": "9999-01-01T00:00:00Z",
+    "System.State": "In Progress",
+    "System.TeamProject": "AcmeDev",
+    "System.Title": "Run through tech docs",
+    "System.Watermark": 3666,
+    "System.WorkItemType": "Task"
+  },
+  "id": 670,
+  "multilineFieldsFormat": {},
+  "relations": [
+    {
+      "attributes": {
+        "isLocked": false,
+        "name": "Parent"
+      },
+      "rel": "System.LinkTypes.Hierarchy-Reverse",
+      "url": "https://dev.azure.com/acme/00000000-0000-0000-0000-000000000001/_apis/wit/workItems/597"
+    }
+  ],
+  "rev": 3,
+  "url": "https://dev.azure.com/acme/00000000-0000-0000-0000-000000000001/_apis/wit/workItems/670"
+}
