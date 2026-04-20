@@ -38,6 +38,34 @@ from adapters.base import PMAdapter  # noqa: E402
 from models.task import UnifiedTask  # noqa: E402
 
 
+def _load_env_local(path: Path = Path(".env.local")) -> None:
+    """Load KEY=VALUE lines from `.env.local` in CWD into os.environ.
+
+    Per-repo secrets pattern: each project keeps its own `.env.local`
+    (gitignored, mode 600), so cd-ing into a repo gives the right creds
+    without polluting the shell rc.
+
+    Existing env vars win — letting shell exports or CI override the file.
+    Missing file is a silent no-op; the adapter's `from_env()` will raise
+    a clear error if required vars end up unset.
+    """
+    if not path.is_file():
+        return
+    loaded = []
+    for line in path.read_text().splitlines():
+        line = line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, _, value = line.partition("=")
+        key = key.strip()
+        value = value.strip().strip('"').strip("'")
+        if key and key not in os.environ:
+            os.environ[key] = value
+            loaded.append(key)
+    if loaded:
+        sys.stderr.write(f"[pm-sync] loaded {len(loaded)} vars from {path}\n")
+
+
 # Adapter registry — add a row when shipping a new adapter; CLI auto-dispatches.
 ADAPTERS = {
     "azure": ("adapters.azure_devops", "AzureDevOpsAdapter"),
@@ -138,6 +166,7 @@ def main() -> int:
     )
     args = parser.parse_args()
 
+    _load_env_local()
     adapter = _load_adapter()
     tasks = adapter.list_sprint_items(args.sprint_id)
 
