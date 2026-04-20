@@ -3,7 +3,7 @@
 > **English summary:** Task checklist for unified-task-schema. Six steps, roughly 30 min each, designed for weeknight execution.
 
 **Spec:** 01-unified-task-schema
-**Status:** DONE
+**Status:** VERIFIED
 
 ## Checklist
 
