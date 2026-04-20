@@ -8,66 +8,32 @@ triggers: ["pm-sync", "sprint 進度", "推 ticket", "拉 sprint"]
 
 # /pm-sync
 
-將 local `specs/<name>/tasks.md` 同步到遠端專案管理平台，並能反向拉 sprint 進度下來。
+把遠端 PM 平台（首發 Azure DevOps）的 sprint 資料拉下來，並能反向把 spec tasks 推上去。
 
-## 當前狀態
+## 當前可用功能
 
-**MVP 可跑：`/pm-sync sprint` 命令完成。**
+**MVP shipped — 目前只有 `sprint` 一個指令。**
 
-- ✅ UnifiedTask schema + `parsers/azure.py` 平台對譯器（spec 01）
-- ✅ PMAdapter ABC（spec 02）
-- ✅ AzureDevOpsAdapter via `az` CLI（spec 03）
-- ✅ CLI entrypoint `scripts/sprint.py` + `PM_SYNC_PLATFORM` adapter selector（spec 04）
-- 🚧 `/pm-sync show <id>`、`/pm-sync push`、其他 adapter（Redmine / Jira / ...） — future
+- ✅ `python3 scripts/sprint.py <sprint_id>` — 列 sprint work items（table 預設、`--json` 可接 pipeline）
+- 🚧 `show <id>` / `push <spec-name>` / 其他 adapter — see `docs/USAGE.md` §6 roadmap
 
-## Usage
+## Claude 怎麼跑
 
-預設 platform 是 `azure`。先照 `README.md` Prerequisites 裝 `az` CLI 跟 export 三個 env vars，然後：
+當 user 在對話中觸發此 skill（例如 `/pm-sync sprint-12` 或「拉一下 sprint 12」）：
 
-```bash
-# 列出 sprint-12 的 work items，table 形式
-python3 scripts/sprint.py sprint-12
+1. 確認 user 已設好 `AZDO_ORG_URL` / `AZDO_PROJECT` / `AZDO_PAT` env vars（沒設 → 提示 user 看 `README.md` Prerequisites）
+2. Bash 執行：`python3 ~/dev/kc_pm_sync/scripts/sprint.py <sprint_id>`（或加 `--json` 視 user 需求）
+3. 把 output 顯示給 user
+4. 如 user 沒給 sprint_id 或要 `(no items)`，提示看 `docs/USAGE.md` §2 sprint_id 格式說明
 
-# JSON 輸出，供 pipeline 用
-python3 scripts/sprint.py sprint-12 --json | jq '.[] | {id, title, state}'
+## 詳細文件
 
-# 也接受 native iteration path
-python3 scripts/sprint.py 'YourProject\Sprint 12'
-```
-
-### 切換 platform（未來）
-
-CLI 透過 `PM_SYNC_PLATFORM` env var 選 adapter（default `azure`）。當其他 adapter 上線後：
-
-```bash
-export PM_SYNC_PLATFORM=redmine   # 切到 Redmine
-export PM_SYNC_PLATFORM=jira      # 切到 Jira
-unset PM_SYNC_PLATFORM             # 回 default (azure)
-```
-
-各 adapter 自己讀對應的 env vars（Azure: `AZDO_*`、Redmine: `REDMINE_*`、etc），CLI 不關心細節。
-
-預期 table output（去敏示意）：
-
-```
-ID   Type  State        Title                      Assignee             Parent
----  ----  -----------  -------------------------  -------------------  ------
-670  Task  In Progress  Run through tech docs      demo_user@acme.com   597
-671  Task  New          Another item …             other@acme.com       -
-```
-
-## 目標使用方式
-
-```
-/pm-sync sprint                # 列出本 sprint 進度（pull，MVP）
-/pm-sync show <id>             # 看特定 work item 細節（pull）
-/pm-sync push <spec-name>      # 把 spec 的 tasks 推到 azure 建 work items（TODO）
-```
-
-詳細規畫與 roadmap 見 `README.md`。
+- **使用手冊**（CLI flags / sprint_id 格式 / pipeline 範例 / troubleshooting）：[`docs/USAGE.md`](docs/USAGE.md)
+- **架構 + 加新 adapter**：[`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)
+- **首頁**：[`README.md`](README.md)
 
 ## 跟 `spec` skill 的關係
 
 - `spec` skill 負責：需求釐清 → plan → tasks.md → 驗收
-- `pm-sync` 負責：把 `tasks.md` 的內容 sync 到遠端平台
+- `pm-sync` 負責：把 `tasks.md` 的內容 sync 到遠端平台（read MVP 已完成；write 是 future）
 - 兩者透過 `specs/<name>/tasks.md` 的 markdown 格式對接，不互相 import
