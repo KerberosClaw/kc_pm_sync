@@ -1,8 +1,8 @@
 ---
 name: pm-sync
 description: "Sync tasks / work items between local spec files and PM platforms (Azure DevOps first). Pull sprint progress, push spec tasks to tickets."
-version: 0.0.1
-status: skeleton
+version: 0.1.0
+status: mvp-in-progress
 triggers: ["pm-sync", "sprint 進度", "推 ticket", "拉 sprint"]
 ---
 
@@ -12,7 +12,12 @@ triggers: ["pm-sync", "sprint 進度", "推 ticket", "拉 sprint"]
 
 ## 當前狀態
 
-Skeleton only。MVP 開發中：`/pm-sync sprint`。
+MVP 開發中：`/pm-sync sprint`。
+
+- ✅ **Schema layer complete**（2026-04-20）：`models.task.UnifiedTask` 平台中立 dataclass + `from_azure_payload()` factory + pytest 通過（fixture: Task #670）
+- 🚧 Adapter interface（`adapters/base.py`）— next
+- 🚧 Azure DevOps adapter 實作 — next
+- 🚧 CLI entrypoint `scripts/sprint.py` — next
 
 ## 目標使用方式
 

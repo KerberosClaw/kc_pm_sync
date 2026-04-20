@@ -3,7 +3,7 @@
 > **English summary:** Task checklist for unified-task-schema. Six steps, roughly 30 min each, designed for weeknight execution.
 
 **Spec:** 01-unified-task-schema
-**Status:** IN_PROGRESS
+**Status:** DONE
 
 ## Checklist
 
@@ -15,13 +15,13 @@
   - 交付：`tests/fixtures/azure/work_item_670.json`（sanitized）
   - 預期 assertion 值（Task 4 要對）：id=670, type="Task", state="In Progress", title="Run through tech docs", iterationPath="AcmeDev\\Sprint 12", areaPath="AcmeDev", parent=597, assignee="demo_user@acme.onmicrosoft.com", changedDate="2026-04-20T02:11:40.087Z"
 
-- [ ] **Task 2: UnifiedTask dataclass**（~30 分）
+- [x] **Task 2: UnifiedTask dataclass**（2026-04-20 完成）
   - 新增 `models/task.py`：按 spec.md AC-1 列出全部欄位，用 `@dataclass` 標註，含 type hints
   - 新增 `models/__init__.py`：`from .task import UnifiedTask`
   - 不寫任何邏輯 / method，只宣告資料結構
   - **完成條件：** `python -c "from models.task import UnifiedTask; print(UnifiedTask.__dataclass_fields__.keys())"` 列出所有欄位
 
-- [ ] **Task 3: from_azure_payload factory**（~40 分）
+- [x] **Task 3: from_azure_payload factory**（2026-04-20 完成）
   - 在 `models/task.py` 的 `UnifiedTask` 類別裡加 `@classmethod def from_azure_payload(cls, raw: dict) -> "UnifiedTask"`
   - 實作 mapping：
     - `id` ← `raw["id"]`
@@ -39,7 +39,7 @@
   - 短名轉換規則寫進 docstring
   - **完成條件：** `python -c "import json; from models.task import UnifiedTask; t = UnifiedTask.from_azure_payload(json.load(open('tests/fixtures/azure/work_item_670.json'))); print(t)"` 印出合理結果
 
-- [ ] **Task 4: pytest 測試**（~30 分）
+- [x] **Task 4: pytest 測試**（2026-04-20 完成）
   - 新增 `tests/__init__.py`（空）
   - 新增 `tests/test_task.py`：寫一支 `test_from_azure_payload_work_item_670()`
     - 用 `pathlib.Path` 定位 fixture
@@ -49,13 +49,13 @@
   - 不要加額外測試（其他 fixture 是後續 spec）
   - **完成條件：** `python -m pytest tests/test_task.py -v` 綠燈
 
-- [ ] **Task 5: 安裝 pytest + 跑完整測試**（~15 分）
+- [x] **Task 5: 安裝 pytest + 跑完整測試**（2026-04-20 完成）
   - 檢查：`python -m pytest --version` 是否已裝
   - 沒裝 → `pip install --user pytest` 或建 venv（`python -m venv .venv && source .venv/bin/activate && pip install pytest`）— **任選，寫入 plan.md Notes**
   - 執行：`cd ~/dev/kc_pm_sync && python -m pytest tests/ -v`
   - **完成條件：** 所有測試 pass，output 至少一行 `PASSED`
 
-- [ ] **Task 6: 更新 SKILL.md**（~15 分）
+- [x] **Task 6: 更新 SKILL.md**（2026-04-20 完成）
   - `version: 0.0.1` → `version: 0.1.0`
   - `status: skeleton` → `status: mvp-in-progress`
   - 在「當前狀態」章節加一句：「Schema layer complete（UnifiedTask + Azure payload factory）。Adapter / CLI 開發中。」
@@ -66,5 +66,12 @@
 - Task 間依賴：1 → 2 → 3 → 4 → 5 → 6，不要跳
 - 碎片型節奏：每晚一個 task，累的晚上跳過不影響（status 在 tasks.md 本身追蹤）
 - 如果 Task 3 的 sprint_id 轉換規則遇到奇怪 path（Azure 多階層 iteration），先 hard-code 取 `split('\\')[-1].lower().replace(' ', '-')`，複雜 case 補進 future spec
-- Task 4 的 assertion 值參考 `an internal Azure DevOps snapshot note` 裡 #670 的 snapshot（state="In Progress", parent=597, iterationPath="AcmeDev\\Sprint 12"）
-- 全部完成後跑 `/spec check 01-unified-task-schema` 驗收，pass 後 `/spec report` 結案 + 資料夾自動搬去 `specs/completed/`
+- Task 4 的 assertion 值參考去敏後 fixture（AcmeDev\\Sprint 12, demo_user@acme...）
+
+## 實作筆記（2026-04-20 全跑）
+
+- **Python 版本適配**：user 系統是 3.9.6（Xcode bundled），spec 寫 3.10+。用 `from __future__ import annotations`（spec 明列可選）讓 `str | None` 語法在 3.9 也能 import 時不炸。實際 runtime 邏輯全 stdlib 3.7+ 相容。
+- **ChangedDate 解析**：Azure 回傳 ISO 8601 尾端 `Z`，Python 3.11 `fromisoformat` 才原生吃 Z；3.9/3.10 要把 `Z` 替成 `+00:00` 再 parse。code 內已處理。
+- **pytest 安裝**：用 `pip3 install --user pytest`，不建 venv（user 單機使用為主，venv 增加 cognitive load）。將來其他 contributor clone 可自選 venv。
+- **一次跑完不分晚**：原設計碎片型每晚一 task，但 user 今天 session 內一口氣跑完。整體實際約 30 分（比預估 2.5h 快，因為 Claude Code 自動產出）。
+- **全部完成後可跑 `/spec check 01-unified-task-schema` 驗收**，pass 後 `/spec report` 結案，資料夾自動從 `specs/active/` 搬到 `specs/completed/`
