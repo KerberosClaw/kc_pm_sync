@@ -1,8 +1,8 @@
 ---
 name: pm-sync
 description: "Sync tasks / work items between local spec files and PM platforms (Azure DevOps first). Pull sprint progress, push spec tasks to tickets."
-version: 0.1.0
-status: mvp-in-progress
+version: 0.2.0
+status: mvp
 triggers: ["pm-sync", "sprint 進度", "推 ticket", "拉 sprint"]
 ---
 
@@ -12,12 +12,37 @@ triggers: ["pm-sync", "sprint 進度", "推 ticket", "拉 sprint"]
 
 ## 當前狀態
 
-MVP 開發中：`/pm-sync sprint`。
+**MVP 可跑：`/pm-sync sprint` 命令完成。**
 
-- ✅ **Schema layer complete**（2026-04-20）：`models.task.UnifiedTask` 平台中立 dataclass + `from_azure_payload()` factory + pytest 通過（fixture: Task #670）
-- 🚧 Adapter interface（`adapters/base.py`）— next
-- 🚧 Azure DevOps adapter 實作 — next
-- 🚧 CLI entrypoint `scripts/sprint.py` — next
+- ✅ UnifiedTask schema + `from_azure_payload` factory（spec 01）
+- ✅ PMAdapter ABC（spec 02）
+- ✅ AzureDevOpsAdapter via `az` CLI（spec 03）
+- ✅ CLI entrypoint `scripts/sprint.py`（spec 04）
+- 🚧 `/pm-sync show <id>`、`/pm-sync push`、其他 adapter — future
+
+## Usage
+
+先照 `README.md` Prerequisites 裝 `az` CLI 跟 export 三個 env vars。然後：
+
+```bash
+# 列出 sprint-12 的 work items，table 形式
+python3 scripts/sprint.py sprint-12
+
+# JSON 輸出，供 pipeline 用
+python3 scripts/sprint.py sprint-12 --json | jq '.[] | {id, title, state}'
+
+# 也接受 native iteration path
+python3 scripts/sprint.py 'YourProject\Sprint 12'
+```
+
+預期 table output（去敏示意）：
+
+```
+ID   Type  State        Title                      Assignee             Parent
+---  ----  -----------  -------------------------  -------------------  ------
+670  Task  In Progress  Run through tech docs      demo_user@acme.com   597
+671  Task  New          Another item …             other@acme.com       -
+```
 
 ## 目標使用方式
 

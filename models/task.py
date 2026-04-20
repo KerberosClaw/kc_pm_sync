@@ -6,8 +6,28 @@ method to construct from Azure DevOps work item API payloads.
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass, field
 from datetime import datetime
+
+
+def _normalize_iso(s: str) -> str:
+    """Normalize Azure DevOps ISO 8601 strings for Python 3.9/3.10 fromisoformat.
+
+    - Strip trailing 'Z', replace with '+00:00' (3.9/3.10 don't accept 'Z').
+    - Pad fractional seconds to exactly 6 digits (3.9/3.10 require .fff or
+      .ffffff; Azure may return 1-3 digits like '.62' or '.087').
+
+    Python 3.11+ handles both natively, but this is cheap so we always run it.
+    """
+    if s.endswith("Z"):
+        s = s[:-1] + "+00:00"
+    m = re.search(r"\.(\d+)", s)
+    if m:
+        frac = m.group(1)
+        padded = (frac + "000000")[:6]
+        s = s.replace("." + frac, "." + padded, 1)
+    return s
 
 
 @dataclass
@@ -57,12 +77,10 @@ class UnifiedTask:
         assignee_obj = fields_.get("System.AssignedTo")
         assignee = assignee_obj.get("uniqueName") if assignee_obj else None
 
-        # Azure returns ISO 8601 with trailing "Z"; Python 3.10 fromisoformat
-        # doesn't accept "Z" suffix (3.11+ does). Normalize for broader compat.
-        changed_raw = fields_["System.ChangedDate"]
-        if changed_raw.endswith("Z"):
-            changed_raw = changed_raw[:-1] + "+00:00"
-        changed_at = datetime.fromisoformat(changed_raw)
+        # Azure returns ISO 8601 strings with varying fractional-second
+        # precision and a trailing 'Z'. Python 3.9/3.10 fromisoformat rejects
+        # both; normalize first for broader compat.
+        changed_at = datetime.fromisoformat(_normalize_iso(fields_["System.ChangedDate"]))
 
         return cls(
             id=raw["id"],

@@ -4,10 +4,28 @@ import json
 from datetime import datetime
 from pathlib import Path
 
-from models.task import UnifiedTask
+import pytest
+
+from models.task import UnifiedTask, _normalize_iso
 
 
 FIXTURE_DIR = Path(__file__).parent / "fixtures" / "azure"
+
+
+@pytest.mark.parametrize("raw,expected", [
+    # trailing Z → +00:00
+    ("2026-04-20T02:11:40.087Z", "2026-04-20T02:11:40.087000+00:00"),
+    # 2-digit fractional → padded to 6
+    ("2026-04-15T00:51:04.62+00:00", "2026-04-15T00:51:04.620000+00:00"),
+    # 1-digit fractional → padded to 6
+    ("2026-04-15T00:51:04.6+00:00", "2026-04-15T00:51:04.600000+00:00"),
+    # already 6-digit → unchanged
+    ("2026-04-20T02:11:40.123456+00:00", "2026-04-20T02:11:40.123456+00:00"),
+    # no fractional → unchanged
+    ("2026-04-20T02:11:40+00:00", "2026-04-20T02:11:40+00:00"),
+])
+def test_normalize_iso_handles_fractional_and_Z(raw, expected):
+    assert _normalize_iso(raw) == expected
 
 
 def test_from_azure_payload_work_item_670():

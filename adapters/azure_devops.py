@@ -47,19 +47,17 @@ class AzureDevOpsAdapter(PMAdapter):
         self.pat = pat
 
     def _az(self, *args: str) -> dict | list:
-        """Invoke `az <args> --organization ... --project ... -o json` and
-        return the parsed JSON stdout.
+        """Invoke `az <args> --organization <org> -o json` and return parsed JSON.
+
+        Only `--organization` and `-o json` are added automatically — callers
+        that need `--project` must pass it in *args (e.g. `az boards query`
+        accepts it; `az boards work-item show` does NOT).
 
         PAT is injected via `AZURE_DEVOPS_EXT_PAT` env var (never on argv
         to avoid leaking through process listings).
         """
         env = {**os.environ, "AZURE_DEVOPS_EXT_PAT": self.pat}
-        argv = [
-            "az", *args,
-            "--organization", self.org_url,
-            "--project", self.project,
-            "-o", "json",
-        ]
+        argv = ["az", *args, "--organization", self.org_url, "-o", "json"]
         result = subprocess.run(
             argv, capture_output=True, text=True, check=True, env=env,
         )
@@ -91,7 +89,8 @@ class AzureDevOpsAdapter(PMAdapter):
             "SELECT [System.Id] FROM WorkItems "
             f"WHERE [System.IterationPath] = '{native}'"
         )
-        rows = self._az("boards", "query", "--wiql", wiql)
+        # `query` accepts --project (and needs it); `work-item show` does not.
+        rows = self._az("boards", "query", "--wiql", wiql, "--project", self.project)
         if not isinstance(rows, list):
             raise TypeError(f"az boards query returned {type(rows).__name__}, expected list")
         return [self.get_item(row["id"]) for row in rows]
