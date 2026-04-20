@@ -1,14 +1,17 @@
 # kc_pm_sync
 
-Claude Code skill — 把 local spec 檔案跟遠端專案管理平台（首發 Azure DevOps）對接起來。
+Claude Code skill — 把 local spec 檔案跟遠端專案管理平台（首發 Azure DevOps，可擴充）對接起來。
+
+📐 **架構與擴充指南：[`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)** — 含四層設計圖、加新 adapter 的 4 步驟教學（Redmine 範例）。
 
 ## 當前狀態
 
-MVP 開發中。已完成：
-- ✅ `UnifiedTask` schema + `from_azure_payload` factory（spec 01）
+MVP 完成。`/pm-sync sprint` 可實際拉 Azure DevOps sprint 進度。
+- ✅ `UnifiedTask` schema（spec 01）
 - ✅ `PMAdapter` 抽象介面（spec 02）
-- ✅ `AzureDevOpsAdapter` 實作（spec 03，本 spec）
-- 🚧 CLI `scripts/sprint.py` — next（spec 04）
+- ✅ `AzureDevOpsAdapter` 實作（spec 03）
+- ✅ CLI `scripts/sprint.py` + `PM_SYNC_PLATFORM` selector（spec 04）
+- 🚧 `/pm-sync show <id>`、`/pm-sync push`、其他 adapter（Redmine / Jira / ...）— future
 
 ## Prerequisites
 

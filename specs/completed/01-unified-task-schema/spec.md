@@ -1,5 +1,7 @@
 # Unified Task Schema
 
+> ⚠️ **Historical record.** Architecture has evolved since this spec — parser logic is now in `parsers/azure.py` (no longer a `UnifiedTask.from_azure_payload` classmethod). See [`docs/ARCHITECTURE.md`](../../../docs/ARCHITECTURE.md) for the current design.
+
 > **English summary:** Platform-neutral `UnifiedTask` dataclass that parses Azure DevOps work item API responses into a stable schema, with offline unit tests driven by real-world fixtures.
 
 ## 六要素摘要（Task Prompt Schema）

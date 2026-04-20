@@ -1,5 +1,7 @@
 # CLI Sprint Entrypoint
 
+> ⚠️ **Historical record.** Architecture has evolved since this spec — CLI no longer hard-codes `AzureDevOpsAdapter` or env-var reading. Current design uses `ADAPTERS` registry + `PM_SYNC_PLATFORM` env var + per-adapter `from_env()`. See [`docs/ARCHITECTURE.md`](../../../docs/ARCHITECTURE.md) for the current design and how to add new adapters.
+
 > **English summary:** `scripts/sprint.py` — argparse-based CLI that reads `AZDO_*` env vars, instantiates `AzureDevOpsAdapter`, calls `list_sprint_items`, and prints a readable table (or JSON). Completes the MVP loop: `python3 scripts/sprint.py sprint-12` actually fetches and shows real data.
 
 ## 六要素摘要（Task Prompt Schema）

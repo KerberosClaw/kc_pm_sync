@@ -1,5 +1,7 @@
 # Azure DevOps Adapter
 
+> ⚠️ **Historical record.** Architecture has evolved since this spec — adapter now also exposes `from_env()` classmethod (env-var resolution moved here from CLI). See [`docs/ARCHITECTURE.md`](../../../docs/ARCHITECTURE.md) for the current design.
+
 > **English summary:** Concrete `AzureDevOpsAdapter(PMAdapter)` that fetches sprint items and individual work items by shelling out to the `az` CLI. Plus runtime prerequisite check, README Prerequisites section, and mocked subprocess tests.
 
 ## 六要素摘要（Task Prompt Schema）
