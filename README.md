@@ -4,17 +4,57 @@ Claude Code skill — 把 local spec 檔案跟遠端專案管理平台（首發 
 
 ## 當前狀態
 
-Skeleton，尚未實作。
+MVP 開發中。已完成：
+- ✅ `UnifiedTask` schema + `from_azure_payload` factory（spec 01）
+- ✅ `PMAdapter` 抽象介面（spec 02）
+- ✅ `AzureDevOpsAdapter` 實作（spec 03，本 spec）
+- 🚧 CLI `scripts/sprint.py` — next（spec 04）
 
-### Next development entry points (TODO)
+## Prerequisites
 
-MVP 目標 `/pm-sync sprint` 的三條切入，待有空時接續：
+### Azure DevOps adapter（預設）
 
-- **a. Connectivity smoke test** — 寫一支最小 script 拿 PAT 打 Azure DevOps REST API 抓當前 sprint 的 work items raw JSON，確認 auth、endpoint、payload 長相
-- **b. `models/task.py` schema** — 定義 Unified Task model（id / title / state / assignee / sprint / labels / parent / links...）
-- **c. `adapters/base.py` abstract interface** — 定義跨平台 adapter 契約（`list_sprint_items`、`get_item`、`push_item`...）
+**1. 裝 `az` CLI**（2.50+）
 
-**建議順序 a → b → c**：先 spike API 拿真資料，再反推 schema 與 interface，避免憑想像過度設計。
+```bash
+# macOS
+brew install azure-cli
+
+# Linux (Debian/Ubuntu 為例，其他 distro 見 MS 官方)
+curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+
+# Windows
+# https://learn.microsoft.com/cli/azure/install-azure-cli-windows
+```
+
+第一次用 `az boards` 系列指令時會提示安裝 `azure-devops` extension，照提示裝。或手動：
+
+```bash
+az extension add --name azure-devops
+```
+
+**2. 準備 PAT（Personal Access Token）**
+
+到 Azure DevOps web UI → User Settings → Personal access tokens → New Token。Scope 勾 **`Work Items (Read)`** 就夠跑 MVP。
+
+**3. 設定環境變數**
+
+```bash
+export AZDO_ORG_URL="https://dev.azure.com/{your-org}"
+export AZDO_PROJECT="{your-project}"
+export AZDO_PAT="{your-personal-access-token}"
+```
+
+建議放 `~/.bashrc` / `~/.zshrc` 或走 `direnv` 管理，**不要進 repo**。
+
+### 其他 adapter（未來）
+
+不同 PM 平台有不同依賴。Trello / Jira / GitHub Issues 各自可能需要：
+- 專屬 SDK（pip install）
+- 不同認證方式（API key、OAuth app、Bearer token）
+- 平台自己的 CLI tool
+
+屆時各 adapter 的 module docstring 會列出該平台的前置需求。
 
 ## MVP 範圍
 
